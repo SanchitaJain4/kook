@@ -1,7 +1,7 @@
 ```
 cd my-app-be
 
-python -m venv env
+python3 -m venv env
 
 source env/bin/activate
 
@@ -12,4 +12,6 @@ set it in the environment
 
 ```commandline
 export OPEN_AI_KEY=
+python server.py
 ```
+
