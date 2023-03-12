@@ -2,6 +2,9 @@ import React from 'react';
 import { Container, Form, Button, ListGroup } from 'react-bootstrap';
 import './App.css';
 
+// Use this in the fetch endpoint to hit BE.
+var API_ENDPOINT = "http://localhost:5000"
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -28,7 +31,7 @@ class App extends React.Component {
 
   handleRecipeSubmit(e) {
    
-        fetch('http://localhost:5000/api', {
+        fetch('/api', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -62,6 +65,9 @@ class App extends React.Component {
   
     return (
       <div className="bg">
+              <header className="header">
+              AI Recipe Generator</header>
+
         <Container className="center">
           <Form onSubmit={this.handleSubmit}>
             <Form.Group controlId="formBasicEmail">
@@ -93,11 +99,12 @@ class App extends React.Component {
             <Button
             disabled={this.state.todos.length===0} 
             onClick={this.handleRecipeSubmit} variant="primary" type="submit" className="mt-3">
-              Give Recipe Suggestions
+              Generate Recipe Suggestions
             </Button>
          <br/>
         {this.state.choices && <div>{messageList.length !=0 ? messageList: this.state.resp}</div>}
         </Container>
+        <footer className="footer"></footer>
       </div>
     );
   }

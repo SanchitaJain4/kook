@@ -5,10 +5,10 @@ import os
 
 import requests
 import json
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
-app = Flask(__name__)
+app = Flask(__name__,static_folder='../my-app/build/static')
 CORS(app)
 
 def list_recipes(ingredients):
@@ -18,7 +18,7 @@ def list_recipes(ingredients):
 	print(payload)
 	headers = {
 	    'content-type': "application/json",
-	    'authorization': "Bearer " + os.getenv("OPEN_AI_KEY"),
+	    'authorization': "Bearer " + str(os.getenv("OPEN_AI_KEY")),
 	    'cache-control': "no-cache",
 	    'postman-token': "84093f64-ec54-6ec0-5f38-0d1ad01c239e"
 	    }
@@ -27,6 +27,10 @@ def list_recipes(ingredients):
 
 	print(response.text)
 	return response.text
+
+@app.route('/')
+def index():
+    return send_from_directory('../my-app/build', 'index.html')
 
 @app.route('/api', methods=['POST'])
 def api():
@@ -37,7 +41,9 @@ def api():
 	return jsonify(json_resp)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+	from waitress import serve
+	serve(app, host="0.0.0.0", port=80)
+    #app.run(debug=True)
 
 
 
