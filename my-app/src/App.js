@@ -3,12 +3,42 @@ import { Container, Form, Button, ListGroup, Spinner } from 'react-bootstrap';
 import './App.css';
 import RecipeGenerator from './RecipeGenerator.js'
 import RecipeView from './RecipeView.js'
-import { HashRouter as Router, Route, Link, Routes } from 'react-router-dom'; // import react-router-dom dependencies
+import { HashRouter as Router, Route, Link, Routes,useNavigate } from 'react-router-dom'; // import react-router-dom dependencies
+
+    const API_ENDPOINT = "";
 
 // Use this in the fetch endpoint to hit BE.
 function App() {
+  // const navigate = useNavigate();
+
   const [todos, setTodos] = useState([]);
   const [recipe, setRecipe] = useState("");
+  const [choices, setChoices] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+
+  const handleRecipeSubmit = () => {
+    setLoading(true);
+
+    fetch(API_ENDPOINT + '/api', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        data: todos
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        const formattedMessage = data.choices[0].message.content.split('\n');
+        setChoices(formattedMessage);
+        setLoading(false);
+      }).catch((error) => {
+        console.error('Error:', error);
+        setLoading(false);
+      });
+  }
 
   const updateTodos = (todo) => {
     setTodos([...todos, todo]);
@@ -22,6 +52,8 @@ function App() {
 
   const viewRecipe = (item) => {
     setRecipe(item);
+    // navigate("/recipeview")
+    // navigate("/recipeview")
   }
 
   return (
@@ -36,9 +68,15 @@ function App() {
             path="/"
             element={
               <RecipeGenerator
+                loading={loading}
+                setLoading={setLoading}
                 deleteTodos={deleteTodos}
                 updateTodos={updateTodos}
                 todos={todos}
+                choices={choices}
+                setChoices={setChoices}
+                viewRecipe={viewRecipe}
+                handleRecipeSubmit={handleRecipeSubmit}
               />
             }
           />
