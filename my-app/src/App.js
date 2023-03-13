@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Form, Button, ListGroup } from 'react-bootstrap';
+import { Container, Form, Button, ListGroup, Spinner } from 'react-bootstrap';
 import './App.css';
 
 // Use this in the fetch endpoint to hit BE.
@@ -11,7 +11,8 @@ class App extends React.Component {
     this.state = {
       todos: [],
       newTodo: '',
-      choices: []
+      choices: [],
+      loading: false
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
@@ -30,7 +31,7 @@ class App extends React.Component {
   }
 
   handleRecipeSubmit(e) {
-   
+    this.setState({loading: true})
         fetch('/api', {
       method: 'POST',
       headers: {
@@ -44,7 +45,10 @@ class App extends React.Component {
       .then(data => {
         const formattedMessage = data.choices[0].message.content.split('\n');
         this.setState({ choices: formattedMessage, resp: data.choices[0].message.content });
+      }).finally(() => {
+        this.setState({loading: false})
       });
+
   }
 
   handleDelete(index) {
@@ -97,8 +101,10 @@ class App extends React.Component {
             ))}
           </ListGroup>
             <Button
-            disabled={this.state.todos.length===0} 
+            disabled={this.state.todos.length === 0 || this.state.loading} 
             onClick={this.handleRecipeSubmit} variant="primary" type="submit" className="mt-3">
+                {this.state.loading && <Spinner animation="border" size="sm" className="mr-2" />} {/* Add the spinner here */}
+
               Generate Recipe Suggestions
             </Button>
          <br/>
