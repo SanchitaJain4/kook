@@ -110,7 +110,7 @@ class App extends React.Component {
          <br/>
         {this.state.choices && <div>{messageList.length !=0 ? messageList: this.state.resp}</div>}
         </Container>
-        <footer className="footer"></footer>
+        <footer className="footer">Powered by ChatGpt 3.5</footer>
       </div>
     );
   }
