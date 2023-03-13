@@ -1,119 +1,56 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Container, Form, Button, ListGroup, Spinner } from 'react-bootstrap';
 import './App.css';
+import RecipeGenerator from './RecipeGenerator.js'
+import RecipeView from './RecipeView.js'
+import { HashRouter as Router, Route, Link, Routes } from 'react-router-dom'; // import react-router-dom dependencies
 
 // Use this in the fetch endpoint to hit BE.
-var API_ENDPOINT = "http://localhost:5000"
+function App() {
+  const [todos, setTodos] = useState([]);
+  const [recipe, setRecipe] = useState("");
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      todos: [],
-      newTodo: '',
-      choices: [],
-      loading: false
-    };
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleDelete = this.handleDelete.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleRecipeSubmit = this.handleRecipeSubmit.bind(this);
+  const updateTodos = (todo) => {
+    setTodos([...todos, todo]);
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-    if (this.state.newTodo !== '') {
-      this.setState(prevState => ({
-        todos: [...prevState.todos, prevState.newTodo],
-        newTodo: ''
-      }));
-    }
-  }
-
-  handleRecipeSubmit(e) {
-    this.setState({loading: true})
-        fetch('/api', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        data: this.state.todos
-      })
-    })
-      .then(response => response.json())
-      .then(data => {
-        const formattedMessage = data.choices[0].message.content.split('\n');
-        this.setState({ choices: formattedMessage, resp: data.choices[0].message.content });
-      }).finally(() => {
-        this.setState({loading: false})
-      });
-
-  }
-
-  handleDelete(index) {
-    const newTodos = [...this.state.todos];
+  const deleteTodos = (index) => {
+    const newTodos = [...todos];
     newTodos.splice(index, 1);
-    this.setState({ todos: newTodos });
+    setTodos(newTodos);
   }
 
-  handleInputChange(e) {
-    this.setState({ newTodo: e.target.value });
+  const viewRecipe = (item) => {
+    setRecipe(item);
   }
 
-  render() {
-    const messageList = this.state.choices.map(item => item.trim()) // Remove any leading/trailing whitespace from each item
-    .map((item, index) => <p key={index}>{item}</p>);
-      
-     // Render each item as a list item element
-  
-    return (
+  return (
+    <Router>
       <div className="bg">
-              <header className="header">
-              AI Recipe Generator</header>
-
-        <Container className="center">
-          <Form onSubmit={this.handleSubmit}>
-            <Form.Group controlId="formBasicEmail">
-              <Form.Control
-                type="text"
-                placeholder="Enter ingredient"
-                value={this.state.newTodo}
-                onChange={this.handleInputChange}
+        <header className="header">
+          AI Recipe Generator
+        </header>
+        <Routes>
+          <Route
+            exact
+            path="/"
+            element={
+              <RecipeGenerator
+                deleteTodos={deleteTodos}
+                updateTodos={updateTodos}
+                todos={todos}
               />
-            </Form.Group>
-            <Button variant="primary" type="submit" className="mt-3">
-              Add
-            </Button>
-          </Form>
-          <ListGroup className="mt-3">
-            {this.state.todos.map((todo, index) => (
-              <ListGroup.Item key={index}>
-                {todo}
-                <Button
-                  variant="danger"
-                  className="float-right"
-                  onClick={() => this.handleDelete(index)}
-                >
-                  Delete
-                </Button>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-            <Button
-            disabled={this.state.todos.length === 0 || this.state.loading} 
-            onClick={this.handleRecipeSubmit} variant="primary" type="submit" className="mt-3">
-                {this.state.loading && <Spinner animation="border" size="sm" className="mr-2" />} {/* Add the spinner here */}
-
-              Generate Recipe Suggestions
-            </Button>
-         <br/>
-        {this.state.choices && <div>{messageList.length !=0 ? messageList: this.state.resp}</div>}
-        </Container>
+            }
+          />
+          <Route
+            path="/recipeview"
+            element={<RecipeView recipe={recipe} />}
+          />
+        </Routes>
         <footer className="footer">Powered by ChatGpt 3.5</footer>
       </div>
-    );
-  }
+    </Router>
+  );
 }
 
 export default App;
